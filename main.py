@@ -30,6 +30,15 @@ def is_draw(board):
         return False
 
 
+def play_again():
+    again = input("Wanna play again?[y/n]").upper()
+    if again == "Y":
+        main()
+    else:
+        print("Buy")
+        exit()
+
+
 def is_free(board, position):
     return True if board[position] == '_' else False
 
@@ -47,28 +56,37 @@ def available_moves(board):
 def make_move(board, symbol, position):
     if is_free(board, position):
         board[position] = symbol
+        print_board(board)
         if(is_draw(board)):
             print("Draw")
-            return -1
+            play_again()
         if is_winner(board, "X") and symbol == "X":
             print('X win')
-            return -1
+            play_again()
         elif is_winner(board, "O") and symbol == "O":
             print('O wins')
-            return -1
-        return 0
+            play_again()
+        else:
+            return True
+    return False
 
 
 def player_move(player, board):
-    position = int(input("Enter the cell: "))
-    if make_move(board, player, position) == -1:
-        pass
-    print_board(board)
-    return
+    while True:
+        try:
+            position = int(input("Enter the cell: "))
+            if position < 1 or position > 9:
+                raise ValueError
+        except (KeyError, ValueError):
+            print('You should inter an integer between 1 and 9')
+        else:
+            if not make_move(board, player, position):
+                print(("{0} is occupied").format(position))
+            else:
+                break
 
 
 def comp_move(player, board):
-    print(available_moves(board))
     if len(available_moves(board)) == 9:
         move = randint(1, 9)
     else:
@@ -80,10 +98,7 @@ def comp_move(player, board):
             if(score > max):
                 max = score
                 move = key
-    if make_move(board, player, move) == -1:
-        pass
-    print_board(board)
-    return
+    make_move(board, player, move)
 
 
 def minimax(board, ai, grows_up):
@@ -152,7 +167,6 @@ def main():
     print("Player " + player_choice)
     print("AI " + ai_choice)
     board = ['_' for _ in range(10)]
-
     while not is_winner(board, ai_choice) or is_winner(board, player_choice) or is_draw(board):
         if player_choice == "X":
             player_move(player_choice, board)
