@@ -1,5 +1,6 @@
 import math
 from random import randint
+import time
 
 
 def is_winner(board, symbol):
@@ -87,6 +88,7 @@ def player_move(player, board):
 
 
 def comp_move(player, board):
+    time.sleep(1)
     if len(available_moves(board)) == 9:
         move = randint(1, 9)
     else:
@@ -144,14 +146,19 @@ def main():
     player_choice = ""
     while ai_choice == "":
         try:
-            player_choice = input(
-                """Choose your character: type X or O.\n or typr random if you do not give a shit """).upper()
+            print(
+                """Choose your character: type X or O.\nor type random if you do not give a shit """)
+            player_choice = input().upper()
+            print(player_choice)
+            print()
             if player_choice == "RANDOM":
                 rnd = randint(0, 1)
                 if rnd == 0:
                     player_choice = "O"
+                    ai_choice = "X"
                 else:
                     player_choice = "X"
+                    ai_choice = "O"
             elif player_choice == "X":
                 ai_choice = "O"
             elif player_choice == "O":
@@ -167,13 +174,19 @@ def main():
     print("Player " + player_choice)
     print("AI " + ai_choice)
     board = ['_' for _ in range(10)]
-    while not is_winner(board, ai_choice) or is_winner(board, player_choice) or is_draw(board):
-        if player_choice == "X":
-            player_move(player_choice, board)
-            comp_move(ai_choice, board)
-        else:
-            comp_move(ai_choice, board)
-            player_move(player_choice, board)
+    if player_choice == "X":
+        print_board(board)
+    try:
+        while not is_winner(board, ai_choice) or is_winner(board, player_choice) or is_draw(board):
+            if player_choice == "X":
+                player_move(player_choice, board)
+                comp_move(ai_choice, board)
+            else:
+                comp_move(ai_choice, board)
+                player_move(player_choice, board)
+    except (EOFError, KeyboardInterrupt):
+        print('Bye')
+        exit()
 
 
 if __name__ == '__main__':
