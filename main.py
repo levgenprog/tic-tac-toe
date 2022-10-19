@@ -1,3 +1,4 @@
+import math
 from random import randint
 
 
@@ -41,19 +42,11 @@ def available_moves(board):
     return [i for i, s in enumerate(board) if s == "_"]
 
 
-def empty_cells(board):
-    return "_" in board
-
-
-def num_empty_cell(board):
-    return board.count("_")
-
-
 def make_move(board, symbol, position):
     if is_free(board, position):
         board[position] = symbol
         if(is_draw(board)):
-            print("Tie")
+            print("Draw")
             return -1
         if is_winner(board, "X") and symbol == "X":
             print('X win')
@@ -73,16 +66,58 @@ def player_move(player, board):
 
 
 def comp_move(player, board):
-    move = 0
+    if len(available_moves(board)) == len(board):
+        move = randint(1, 9)
+    else:
+        max = -math.inf
+        for key in available_moves(board):
+            board[key] = player
+            score = minimax(board, player, False)
+            board[key] = "_"
+            if(score > max):
+                max = score
+                move = key
+    if make_move(board, player, move) == -1:
+        pass
+    print_board(board)
+    return
+
+
+def minimax(board, ai, grows_up):
+    hum = "X" if ai == "O" else "O"
+    if is_winner(board, ai):
+        return 100
+    elif is_winner(board, hum):
+        return -100
+    elif is_draw(board):
+        return 0
+    if grows_up:
+        max = -math.inf
+        for key in available_moves(board):
+            board[key] = ai
+            score = minimax(board, ai, False)
+            board[key] = "_"
+            if(score > max):
+                max = score
+        return max
+    else:
+        max = math.inf
+        for key in available_moves(board):
+            board[key] = hum
+            score = minimax(board, ai, True)
+            board[key] = "_"
+            if(score < max):
+                max = score
+        return max
 
 
 def print_board(board):
     stringa = ""
     for i in range(1, len(board)):
         if i % 3 == 0 and i != 0:
-            stringa += board[i] + "\n"
+            stringa += "| " + board[i] + " |" + "\n"
         else:
-            stringa += board[i]
+            stringa += "| " + board[i] + " "
     print(stringa)
 
 
@@ -114,10 +149,13 @@ def main():
     print("Player " + player_choice)
     print("AI " + ai_choice)
     board = ['_' for _ in range(10)]
-    print_board(board)
 
-    while not is_winner(board, ai_choice) or is_winner(board, player_move):
+    while not is_winner(board, ai_choice) or is_winner(board, player_choice) or is_draw(board):
         if player_choice == "X":
+            player_move(player_choice, board)
+            comp_move(ai_choice, board)
+        else:
+            comp_move(ai_choice, board)
             player_move(player_choice, board)
 
 
