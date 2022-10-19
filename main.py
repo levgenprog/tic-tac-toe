@@ -39,7 +39,9 @@ def is_board_filled(board):
 
 
 def available_moves(board):
-    return [i for i, s in enumerate(board) if s == "_"]
+    lst = [i for i, s in enumerate(board) if s == "_"]
+    lst.remove(0)
+    return lst
 
 
 def make_move(board, symbol, position):
@@ -66,7 +68,8 @@ def player_move(player, board):
 
 
 def comp_move(player, board):
-    if len(available_moves(board)) == len(board):
+    print(available_moves(board))
+    if len(available_moves(board)) == 9:
         move = randint(1, 9)
     else:
         max = -math.inf
