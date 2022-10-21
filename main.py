@@ -1,5 +1,5 @@
 import math
-from random import randint
+from random import choice, randint
 import time
 
 
@@ -87,48 +87,113 @@ def player_move(player, board):
                 break
 
 
-def comp_move(player, board):
-    time.sleep(1)
-    if len(available_moves(board)) == 9:
-        move = randint(1, 9)
-    else:
-        max = -math.inf
-        for key in available_moves(board):
-            board[key] = player
-            score = minimax(board, player, False)
-            board[key] = "_"
-            if(score > max):
-                max = score
-                move = key
-    make_move(board, player, move)
+def can_win(board, player):
+    for key in available_moves(board):
+        board[key] = player
+        if is_winner(board, player):
+            return key
+    return 0
 
 
-def minimax(board, ai, grows_up):
+def even_move(board):
+    for key in available_moves(board):
+        if key % 2 == 0:
+            return key
+    return 0
+
+
+def comp_move(ai, board, cnt):
     hum = "X" if ai == "O" else "O"
-    if is_winner(board, ai):
-        return 100
-    elif is_winner(board, hum):
-        return -100
-    elif is_draw(board):
-        return 0
-    if grows_up:
-        max = -math.inf
-        for key in available_moves(board):
-            board[key] = ai
-            score = minimax(board, ai, False)
-            board[key] = "_"
-            if(score > max):
-                max = score
-        return max
-    else:
-        max = math.inf
-        for key in available_moves(board):
-            board[key] = hum
-            score = minimax(board, ai, True)
-            board[key] = "_"
-            if(score < max):
-                max = score
-        return max
+    time.sleep(1)
+    if cnt == 0:  # x
+        move = 1
+    elif cnt == 1:  # o
+        if 5 in available_moves(board):
+            move = 5
+        else:
+            move = 1
+    elif cnt == 2:  # x
+        if 9 in available_moves(board):
+            move = 9
+        else:
+            move = 3
+    elif cnt == 3:  # o
+        prevent = can_win(board, hum)
+        if prevent != 0:
+            move = prevent
+        else:
+            move = even_move(board, board)
+    elif cnt == 4:  # x
+        win = can_win(board, ai)
+        prevent = can_win(board, hum)
+        if win != 0:
+            move = win
+        elif prevent != 0:
+            move = prevent
+        elif 7 in available_moves(board):
+            move = 7
+        else:
+            move = 3
+    elif cnt == 5:  # o
+        win = can_win(board, ai)
+        prevent = can_win(board, hum)
+        if win != 0:
+            move = win
+        elif prevent != 0:
+            move = prevent
+        else:
+            move = even_move(board)
+    else:  # x, o, x and game shold be over
+        win = can_win(board, ai)
+        prevent = can_win(board, hum)
+        if win != 0:
+            move = win
+        elif prevent != 0:
+            move = prevent
+        else:
+            move = choice(available_moves(board))
+    make_move(board, ai, move)
+
+    # if len(available_moves(board)) == 9:
+    #     move = randint(1, 9)
+    # else:
+    #     max = -math.inf
+    #     for key in available_moves(board):
+    #         board[key] = player
+    #         score = minimax(board, player, False)
+    #         board[key] = "_"
+    #         if(score > max):
+    #             max = score
+    #             move = key
+    # make_move(board, player, move)
+
+
+# def minimax(board, ai, grows_up):
+#     hum = "X" if ai == "O" else "O"
+#     if is_winner(board, ai):
+#         return 100
+#     elif is_winner(board, hum):
+#         return -100
+#     elif is_draw(board):
+#         return 0
+#     if grows_up:
+#         max = -math.inf
+#         for key in available_moves(board):
+#             board[key] = ai
+#             score = minimax(board, ai, False)
+#             board[key] = "_"
+#             if(score > max):
+#                 max = score
+#         return max
+#     else:
+#         max = math.inf
+#         for key in available_moves(board):
+#             board[key] = hum
+#             score = minimax(board, ai, True)
+#             board[key] = "_"
+#             if(score < max):
+#                 max = score
+#         return max
 
 
 def print_board(board):
@@ -177,13 +242,16 @@ def main():
     if player_choice == "X":
         print_board(board)
     try:
+        cnt = 0
         while not is_winner(board, ai_choice) or is_winner(board, player_choice) or is_draw(board):
             if player_choice == "X":
                 player_move(player_choice, board)
-                comp_move(ai_choice, board)
+                comp_move(ai_choice, board, cnt)
             else:
-                comp_move(ai_choice, board)
+                comp_move(ai_choice, board, cnt)
+                cnt += 1
                 player_move(player_choice, board)
+                cnt += 1
     except (EOFError, KeyboardInterrupt):
         print('Bye')
         exit()
