@@ -91,7 +91,9 @@ def can_win(board, player):
     for key in available_moves(board):
         board[key] = player
         if is_winner(board, player):
+            board[key] = "_"
             return key
+        board[key] = "_"
     return 0
 
 
@@ -246,7 +248,9 @@ def main():
         while not is_winner(board, ai_choice) or is_winner(board, player_choice) or is_draw(board):
             if player_choice == "X":
                 player_move(player_choice, board)
+                cnt += 1
                 comp_move(ai_choice, board, cnt)
+                cnt += 1
             else:
                 comp_move(ai_choice, board, cnt)
                 cnt += 1
