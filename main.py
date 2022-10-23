@@ -124,7 +124,9 @@ def comp_move(ai, board, cnt):
         if prevent != 0:
             move = prevent
         else:
-            move = even_move(board, board)
+            move = even_move(board)
+            if move == 0:
+                move = choice(available_moves(board))
     elif cnt == 4:  # x
         win = can_win(board, ai)
         prevent = can_win(board, hum)
@@ -136,7 +138,7 @@ def comp_move(ai, board, cnt):
             move = 7
         else:
             move = 3
-    elif cnt == 5:  # o
+    elif cnt == 5:  # o1
         win = can_win(board, ai)
         prevent = can_win(board, hum)
         if win != 0:
@@ -145,7 +147,10 @@ def comp_move(ai, board, cnt):
             move = prevent
         else:
             move = even_move(board)
+            if move == 0:
+                move = choice(available_moves(board))
     else:  # x, o, x and game shold be over
+
         win = can_win(board, ai)
         prevent = can_win(board, hum)
         if win != 0:
