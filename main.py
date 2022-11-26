@@ -104,7 +104,7 @@ def even_move(board):
     return 0
 
 
-def comp_move(ai, board, cnt):
+def comp_move_brute(ai, board, cnt):
     hum = "X" if ai == "O" else "O"
     time.sleep(1)
     if cnt == 0:  # x
@@ -149,8 +149,7 @@ def comp_move(ai, board, cnt):
             move = even_move(board)
             if move == 0:
                 move = choice(available_moves(board))
-    else:  # x, o, x and game shold be over
-
+    else:  # x, o, x and game shold be over\
         win = can_win(board, ai)
         prevent = can_win(board, hum)
         if win != 0:
@@ -161,46 +160,99 @@ def comp_move(ai, board, cnt):
             move = choice(available_moves(board))
     make_move(board, ai, move)
 
-    # if len(available_moves(board)) == 9:
-    #     move = randint(1, 9)
-    # else:
-    #     max = -math.inf
-    #     for key in available_moves(board):
-    #         board[key] = player
-    #         score = minimax(board, player, False)
-    #         board[key] = "_"
-    #         if(score > max):
-    #             max = score
-    #             move = key
-    # make_move(board, player, move)
+
+def comp_move_minimax(player, board):
+    time.sleep(1)
+    if len(available_moves(board)) == 9:
+        move = randint(1, 9)
+    else:
+        max = -math.inf
+        for key in available_moves(board):
+            board[key] = player
+            score = minimax(board, player, False)
+            board[key] = "_"
+            if(score > max):
+                max = score
+                move = key
+    make_move(board, player, move)
 
 
-# def minimax(board, ai, grows_up):
-#     hum = "X" if ai == "O" else "O"
-#     if is_winner(board, ai):
-#         return 100
-#     elif is_winner(board, hum):
-#         return -100
-#     elif is_draw(board):
-#         return 0
-#     if grows_up:
-#         max = -math.inf
-#         for key in available_moves(board):
-#             board[key] = ai
-#             score = minimax(board, ai, False)
-#             board[key] = "_"
-#             if(score > max):
-#                 max = score
-#         return max
-#     else:
-#         max = math.inf
-#         for key in available_moves(board):
-#             board[key] = hum
-#             score = minimax(board, ai, True)
-#             board[key] = "_"
-#             if(score < max):
-#                 max = score
-#         return max
+def minimax(board, ai, grows_up):
+    hum = "X" if ai == "O" else "O"
+    if is_winner(board, ai):
+        return 100
+    elif is_winner(board, hum):
+        return -100
+    elif is_draw(board):
+        return 0
+    if grows_up:
+        max = -math.inf
+        for key in available_moves(board):
+            board[key] = ai
+            score = minimax(board, ai, False)
+            board[key] = "_"
+            if(score > max):
+                max = score
+        return max
+    else:
+        max = math.inf
+        for key in available_moves(board):
+            board[key] = hum
+            score = minimax(board, ai, True)
+            board[key] = "_"
+            if(score < max):
+                max = score
+        return max
+
+
+def comp_move_minimax_alfa_beta(player, board):
+    time.sleep(1)
+    if len(available_moves(board)) == 9:
+        move = randint(1, 9)
+    else:
+        best = -math.inf
+        alfa = -math.inf
+        beta = math.inf
+        for key in available_moves(board):
+            board[key] = player
+            score = minimax_alfa_beta(board, player, False, alfa, beta)
+            board[key] = "_"
+            if(score > best):
+                best = score
+                move = key
+    make_move(board, player, move)
+
+
+def minimax_alfa_beta(board, ai, grows_up, alfa, beta):
+    hum = "X" if ai == "O" else "O"
+    if is_winner(board, ai):
+        return 100
+    elif is_winner(board, hum):
+        return -100
+    elif is_draw(board):
+        return 0
+    if grows_up:
+        max_eval = -math.inf
+        for key in available_moves(board):
+            board[key] = ai
+            score = minimax_alfa_beta(board, ai, False, alfa, beta)
+            board[key] = "_"
+            max_eval = max(max_eval, score)
+            alfa = max(alfa, score)
+            if beta <= alfa:
+                break
+        return max_eval
+    else:
+        min_eval = math.inf
+        for key in available_moves(board):
+            board[key] = hum
+            score = minimax_alfa_beta(board, ai, True, alfa, beta)
+            board[key] = "_"
+            min_eval = min(min_eval, score)
+            beta = min(beta, score)
+            if beta <= alfa:
+                break
+        return min_eval
 
 
 def print_board(board):
@@ -254,10 +306,10 @@ def main():
             if player_choice == "X":
                 player_move(player_choice, board)
                 cnt += 1
-                comp_move(ai_choice, board, cnt)
+                comp_move_minimax_alfa_beta(ai_choice, board)
                 cnt += 1
             else:
-                comp_move(ai_choice, board, cnt)
+                comp_move_minimax_alfa_beta(ai_choice, board)
                 cnt += 1
                 player_move(player_choice, board)
                 cnt += 1
