@@ -161,7 +161,7 @@ def comp_move_brute(ai, board, cnt):
     make_move(board, ai, move)
 
 
-def comp_move_minimax(player, board):
+def comp_move_minimax(player, board, *args):
     time.sleep(1)
     if len(available_moves(board)) == 9:
         move = randint(1, 9)
@@ -205,7 +205,7 @@ def minimax(board, ai, grows_up):
         return max
 
 
-def comp_move_minimax_alfa_beta(player, board):
+def comp_move_minimax_alfa_beta(player, board, *args):
     time.sleep(1)
     if len(available_moves(board)) == 9:
         move = randint(1, 9)
@@ -268,12 +268,23 @@ def print_board(board):
 def main():
     ai_choice = ""
     player_choice = ""
+    while True:
+        try:
+            difficulty = int(input("Choose difficulty:\nType 0 - for beatable, \n"
+                                   "Type 1 - for minimax unbeatable, \n"
+                                   "Type 2 - for super mega minimax alpha beta puring difficulty "))
+            if difficulty > 2 or difficulty < 0:
+                raise ValueError
+            break
+        except (KeyError, ValueError):
+            print(f'Incorrect difficulty {difficulty}, try again')
+        except (EOFError, KeyboardInterrupt):
+            print('Bye')
+            exit()
     while ai_choice == "":
         try:
-            print(
-                """Choose your character: type X or O.\nor type random if you do not give a shit """)
-            player_choice = input().upper()
-            print(player_choice)
+            player_choice = input(
+                """Choose your character: type X or O.\nor type random if you do not give a shit """).upper()
             print()
             if player_choice == "RANDOM":
                 rnd = randint(0, 1)
@@ -288,16 +299,23 @@ def main():
             elif player_choice == "O":
                 ai_choice = "X"
             else:
-                print('Try again falk')
+                raise ValueError
         except (EOFError, KeyboardInterrupt):
             print('Bye')
             exit()
         except (KeyError, ValueError):
-            print('Bad choice')
+            print(f'There is no such a player {player_choice}, try again')
 
     print("Player " + player_choice)
     print("AI " + ai_choice)
     board = ['_' for _ in range(10)]
+    match difficulty:
+        case 0:
+            comp_move = comp_move_brute
+        case 1:
+            comp_move = comp_move_minimax
+        case 2:
+            comp_move = comp_move_minimax_alfa_beta
     if player_choice == "X":
         print_board(board)
     try:
@@ -306,10 +324,10 @@ def main():
             if player_choice == "X":
                 player_move(player_choice, board)
                 cnt += 1
-                comp_move_minimax_alfa_beta(ai_choice, board)
+                comp_move(ai_choice, board, cnt)
                 cnt += 1
             else:
-                comp_move_minimax_alfa_beta(ai_choice, board)
+                comp_move(ai_choice, board, cnt)
                 cnt += 1
                 player_move(player_choice, board)
                 cnt += 1
