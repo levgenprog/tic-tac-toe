@@ -94,31 +94,28 @@ def make_move(board, symbol, position):
         if(is_draw(board)):
             print("Draw")
             play_again()
-        if is_winner(board, "X") and symbol == "X":
+        elif is_winner(board, "X") and symbol == "X":
             print('X win')
             play_again()
         elif is_winner(board, "O") and symbol == "O":
             print('O wins')
             play_again()
-        else:
-            return True
-    return False
 
 
 def player_move(player, board):
     while True:
         try:
             position = int(input("Enter the cell: "))
-            if position < 1 or position > 9:
+            if position < 1 or position > len(board) - 1:
                 raise ValueError
         except (KeyError, ValueError):
-            print('You should inter an integer between 1 and 9')
+            print(
+                f'You should inter an integer between 1 and {len(board) - 1}')
+        if not is_free(board, position):
+            print(("{0} is occupied").format(position))
         else:
-            if not make_move(board, player, position):
-                print(("{0} is occupied").format(position))
-            else:
-                make_move(board, player, position)
-                break
+            break
+    make_move(board, player, position)
 
 
 def can_win(board, player):
@@ -198,8 +195,7 @@ def comp_move_brute(ai, board, cnt):
 def comp_move_minimax(player, board, *args):
     time.sleep(1)
     if len(available_moves(board)) == len(board) - 1:
-        # move = randint(1, len(board) - 1)
-        move = 5
+        move = randint(1, len(board) - 1)
     else:
         max = -math.inf
         for key in available_moves(board):
@@ -244,9 +240,8 @@ def minimax(board, ai, grows_up):
 
 def comp_move_minimax_alfa_beta(player, board, *args):
     time.sleep(1)
-    if len(available_moves(board)) == 9:
-        # move = randint(1, 9)
-        move = 5
+    if len(available_moves(board)) == len(board) - 1:
+        move = randint(1, len(board) - 1)
     else:
         best = -math.inf
         alfa = -math.inf
@@ -350,7 +345,7 @@ def main():
 
     print("Player " + player_choice)
     print("AI " + ai_choice)
-    board = ['_' for _ in range(10)]
+    board = ['_' for _ in range(26)]
     match difficulty:
         case 0:
             comp_move = comp_move_brute
