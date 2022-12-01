@@ -324,11 +324,34 @@ def main():
     player_choice = ""
     while True:
         try:
-            difficulty = int(input("Choose difficulty:\nType 0 - for beatable, \n"
-                                   "Type 1 - for minimax unbeatable, \n"
-                                   "Type 2 - for super mega minimax alpha beta puring difficulty "))
-            if difficulty > 2 or difficulty < 0:
-                raise ValueError
+            sz = int(
+                input("Enter the size of the board. It should be odd and more than 3 "))
+            if sz % 2 == 0 or sz < 3:
+                raise ValueError(
+                    f"Size should be odd and more than 3, {sz} is not like that!")
+            break
+        except ValueError as e:
+            print(e)
+        except (EOFError, KeyboardInterrupt):
+            print('Bye')
+            exit()
+    while True:
+        try:
+            if sz < 7:
+                if sz == 3:
+                    difficulty = int(input("Choose difficulty:\nType 0 - for beatable, \n"
+                                           "Type 1 - for minimax unbeatable, \n"
+                                           "Type 2 - for super mega minimax alpha beta puring difficulty "))
+                    if difficulty > 2 or difficulty < 0:
+                        raise ValueError
+                elif sz == 5 or sz == 7:
+                    difficulty = int(input("Choose difficulty:\nType 0 - for beatable, \n"
+                                           "Type 2 - for super mega minimax alpha beta puring difficulty "))
+                    if difficulty != 2 and difficulty != 0:
+                        raise ValueError
+            else:
+                difficulty = 0
+                print("AI will play randomly")
             break
         except (KeyError, ValueError):
             print(f'Incorrect difficulty {difficulty}, try again')
@@ -362,7 +385,8 @@ def main():
 
     print("Player " + player_choice)
     print("AI " + ai_choice)
-    board = ['_' for _ in range(50)]
+
+    board = ['_' for _ in range(sz**2 + 1)]
     match difficulty:
         case 0:
             comp_move = comp_move_brute
