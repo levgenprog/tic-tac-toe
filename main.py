@@ -107,14 +107,13 @@ def player_move(player, board):
         try:
             position = int(input("Enter the cell: "))
             if position < 1 or position > len(board) - 1:
-                raise ValueError
-        except (KeyError, ValueError):
-            print(
-                f'You should inter an integer between 1 and {len(board) - 1}')
-        if not is_free(board, position):
-            print(("{0} is occupied").format(position))
-        else:
+                raise ValueError(
+                    f'You should inter an integer between 1 and {len(board) - 1}')
+            if not is_free(board, position):
+                raise ValueError(("{0} is occupied").format(position))
             break
+        except (KeyError, ValueError) as e:
+            print(e)
     make_move(board, player, position)
 
 
@@ -239,40 +238,58 @@ def minimax(board, ai, grows_up):
 
 
 def comp_move_minimax_alfa_beta(player, board, *args):
-    time.sleep(1)
     if len(available_moves(board)) == len(board) - 1:
         move = randint(1, len(board) - 1)
     else:
+        hum = "X" if player == "O" else "O"
         best = -math.inf
         alfa = -math.inf
         beta = math.inf
+        depth = 5
+        choices = []
         for key in available_moves(board):
             board[key] = player
             if is_winner(board, player):
-                move = key
+                choices = []
+                choices.append(key)
                 board[key] = "_"
                 break
-            score = minimax_alfa_beta(board, player, False, alfa, beta)
+            board[key] = hum
+            if is_winner(board, hum):
+                choices = []
+                choices.append(key)
+                board[key] = "_"
+                break
+            board[key] = player
+            score = minimax_alfa_beta(
+                board, player, False, alfa, beta, depth)
             board[key] = "_"
             if(score > best):
                 best = score
-                move = key
+                choices = []
+                choices.append(key)
+                # move = key
+            elif score == best:
+                choices.append(key)
+        move = choice(choices)
     make_move(board, player, move)
 
 
-def minimax_alfa_beta(board, ai, grows_up, alfa, beta):
+def minimax_alfa_beta(board, ai, grows_up, alfa, beta, depth):
     hum = "X" if ai == "O" else "O"
     if is_winner(board, ai):
         return 1000
     elif is_winner(board, hum):
         return -1000
     elif is_draw(board):
+        return 1
+    elif depth == 0:
         return 0
     if grows_up:
         max_eval = -math.inf
         for key in available_moves(board):
             board[key] = ai
-            score = minimax_alfa_beta(board, ai, False, alfa, beta)
+            score = minimax_alfa_beta(board, ai, False, alfa, beta, depth - 1)
             board[key] = "_"
             max_eval = max(max_eval, score)
             alfa = max(alfa, score)
@@ -283,7 +300,7 @@ def minimax_alfa_beta(board, ai, grows_up, alfa, beta):
         min_eval = math.inf
         for key in available_moves(board):
             board[key] = hum
-            score = minimax_alfa_beta(board, ai, True, alfa, beta)
+            score = minimax_alfa_beta(board, ai, True, alfa, beta, depth - 1)
             board[key] = "_"
             min_eval = min(min_eval, score)
             beta = min(beta, score)
@@ -345,7 +362,7 @@ def main():
 
     print("Player " + player_choice)
     print("AI " + ai_choice)
-    board = ['_' for _ in range(26)]
+    board = ['_' for _ in range(50)]
     match difficulty:
         case 0:
             comp_move = comp_move_brute
